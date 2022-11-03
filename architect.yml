@@ -1,36 +1,34 @@
-name: flask
+name: architect-flaskr
 description: A starter component that uses Flask framework and SQLite database.
-
 keywords:
   - Flask
   - SQLite
   - Python
   - HTML
   - Gunicorn
-
 secrets:
   gunicorn_workers:
     description: Number of Gunicorn worker processes
     default: 4
-
 services:
   app:
     build:
       context: ./
     interfaces:
-      main: &app-port 5000
+      main: 5000
     environment:
       FLASK_ENV: production
-      FLASK_PORT: *app-port
+      FLASK_PORT: 5000
     liveness_probe:
-      command: curl --fail 0.0.0.0:5000
+      command: 'curl --fail 0.0.0.0:5000'
       interval: 10s
       failure_threshold: 3
     command:
       - sh
-      - -c
-      - |
-        gunicorn -w ${{ secrets.gunicorn_workers }} -b 0.0.0.0:${{ services.app.interfaces.main.port }} "flaskr:create_app()"
+      - '-c'
+      - >
+        gunicorn -w ${{ secrets.gunicorn_workers }} -b 0.0.0.0:${{
+        services.app.interfaces.main.port }} "flaskr:create_app()"
     debug:
       environment:
         FLASK_ENV: development
@@ -39,9 +37,8 @@ services:
         src:
           host_path: ./flaskr
           mount_path: /app/flaskr
-
 interfaces:
   app:
-    url: ${{ services.app.interfaces.main.url }}
+    url: '${{ services.app.interfaces.main.url }}'
     ingress:
       subdomain: app
